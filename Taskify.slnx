@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="Taskify.API/Taskify.API.csproj" />
+  <Project Path="Taskify.Core/Taskify.Core.csproj" Id="887cd7a8-d07c-4b52-9424-ab8097189af6" />
+  <Project Path="Taskify.Infrastructure/Taskify.Infrastructure.csproj" Id="988d8a13-c6ea-44a3-a468-ea89b1c83ef1" />
+</Solution>
