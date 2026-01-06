@@ -13,6 +13,7 @@
   <ItemGroup>
     <Folder Include="Auth\" />
     <Folder Include="Common\" />
+    <Folder Include="Migrations\" />
     <Folder Include="Repositories\" />
     <Folder Include="Services\" />
   </ItemGroup>
