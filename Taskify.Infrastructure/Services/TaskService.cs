@@ -32,22 +32,26 @@ namespace Taskify.Infrastructure.Services
         /// <summary>
         /// Retrieves a task by its identifier.
         /// </summary>
+        /// <param name="userId"></param>
         /// <param name="id">The Id of the task.</param>
         /// <returns>The <see cref="TaskItem"/> if found; otherwise, null.</returns>
-        public async Task<TaskItem?> GetTaskByIdAsync(int id)
+        public async Task<TaskItem?> GetTaskByIdAsync(Guid userId, string id)
         {
-            return await _dbContext.Tasks.FindAsync(id);
+            Guid guidId = Guid.Parse(id);
+            return await _dbContext.Tasks.Where(x => x.Id == guidId && x.UserId == userId).FirstOrDefaultAsync();
         }
 
         /// <summary>
         /// Retrieves all tasks, optionally filtered by status and/or priority.
         /// </summary>
+        /// <param name="userId"></param>
         /// <param name="status">Optional <see cref="Status"/> filter.</param>
         /// <param name="priority">Optional <see cref="TaskPriority"/> filter.</param>
         /// <returns>List of <see cref="TaskItem"/> matching the filters.</returns>
-        public async Task<IEnumerable<TaskItem>> GetTasksAsync(Status? status = null, TaskPriority? priority = null)
+        public async Task<IEnumerable<TaskItem>> GetTasksAsync(Guid userId, Status? status = null, TaskPriority? priority = null)
         {
-            var query = _dbContext.Tasks.AsQueryable();
+            // Filtering logged-in user tasks
+            var query = _dbContext.Tasks.Where(x => x.UserId == userId).AsQueryable();
 
             if (status.HasValue)
                 query = query.Where(t => t.Status == status.Value);
@@ -61,11 +65,12 @@ namespace Taskify.Infrastructure.Services
         /// <summary>
         /// Updates an existing task.
         /// </summary>
+        /// <param name="userId"></param>
         /// <param name="task">The task with updated values. Must include Id.</param>
         /// <returns>The updated <see cref="TaskItem"/> if found; otherwise, null.</returns>
-        public async Task<TaskItem?> UpdateTaskAsync(TaskItem task)
+        public async Task<TaskItem?> UpdateTaskAsync(Guid userId, TaskItem task)
         {
-            var existing = await _dbContext.Tasks.FindAsync(task.Id);
+            var existing = await _dbContext.Tasks.Where(x => x.UserId == userId && x.Id == task.Id).FirstOrDefaultAsync();
             if (existing == null) return null;
 
             existing.Title = task.Title;
@@ -81,11 +86,13 @@ namespace Taskify.Infrastructure.Services
         /// <summary>
         /// Deletes a task by its identifier.
         /// </summary>
+        /// <param name="userId"></param>
         /// <param name="id">The Id of the task to delete.</param>
         /// <returns>True if deletion succeeded; otherwise, false.</returns>
-        public async Task<bool> DeleteTaskAsync(string id)
+        public async Task<bool> DeleteTaskAsync(Guid userId, string id)
         {
-            var existing = await _dbContext.Tasks.FindAsync(id);
+            Guid guidId = Guid.Parse(id);
+            var existing = await _dbContext.Tasks.Where(x => x.Id == guidId && x.UserId == userId).FirstOrDefaultAsync();
             if (existing == null) return false;
 
             _dbContext.Tasks.Remove(existing);

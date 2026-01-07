@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Taskify.Core.Common;
 using Taskify.Core.Entities;
 
 namespace Taskify.Infrastructure.Data
@@ -23,5 +24,31 @@ namespace Taskify.Infrastructure.Data
         /// Tasks table
         /// </summary>
         public DbSet<TaskItem> Tasks => Set<TaskItem>();
+
+        /// <summary>
+        /// Overriding and customizing default save changes behaviour of EF
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries<BaseEntity>();
+
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                }
+
+                if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
     }
 }

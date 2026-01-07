@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 using Taskify.Infrastructure.Auth;
 using Taskify.Infrastructure.Data;
 using Taskify.Infrastructure.Services;
@@ -10,7 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+{
+    //Allow clients to interact with enums via string while maintaining type safety
+    options.JsonSerializerOptions.Converters.Add(
+        new JsonStringEnumConverter()
+    );
+}); ;
 
 //Registering the DbContext for dependency injection
 builder.Services.AddDbContext<TaskifyDbContext>(options =>

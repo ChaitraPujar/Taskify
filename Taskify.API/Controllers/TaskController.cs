@@ -51,9 +51,10 @@ namespace Taskify.API.Controllers
         /// HTTP 404 if the task does not exist.
         /// </returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetTaskById(int id)
+        public async Task<IActionResult> GetTaskById(string id)
         {
-            var task = await _taskService.GetTaskByIdAsync(id);
+            Guid userId = GetUserIdFromClaims();
+            var task = await _taskService.GetTaskByIdAsync(userId, id);
             if (task == null)
                 return NotFound();
 
@@ -73,7 +74,8 @@ namespace Taskify.API.Controllers
             [FromQuery] Status? status,
             [FromQuery] TaskPriority? priority)
         {
-            var tasks = await _taskService.GetTasksAsync(status, priority);
+            Guid userId = GetUserIdFromClaims();
+            var tasks = await _taskService.GetTasksAsync(userId, status, priority);
             return Ok(tasks);
         }
 
@@ -90,10 +92,12 @@ namespace Taskify.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTask(string id, [FromBody] TaskItem task)
         {
+            Guid userId = GetUserIdFromClaims();
+
             if (id != task.Id.ToString())
                 return BadRequest("Task ID mismatch.");
 
-            var updatedTask = await _taskService.UpdateTaskAsync(task);
+            var updatedTask = await _taskService.UpdateTaskAsync(userId, task);
             if (updatedTask == null)
                 return NotFound();
 
@@ -111,7 +115,8 @@ namespace Taskify.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(string id)
         {
-            var deleted = await _taskService.DeleteTaskAsync(id);
+            Guid userId = GetUserIdFromClaims();
+            var deleted = await _taskService.DeleteTaskAsync(userId, id);
             if (!deleted)
                 return NotFound();
 
