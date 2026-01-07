@@ -1,6 +1,5 @@
 ﻿using Taskify.Core.Common;
 using Taskify.Core.Enums;
-using TaskStatus = Taskify.Core.Enums.TaskStatus;
 
 namespace Taskify.Core.Entities
 {
@@ -27,12 +26,12 @@ namespace Taskify.Core.Entities
         /// <summary>
         /// Priority level of the task.
         /// </summary>
-        public TaskPriority Priority { get; set; }
+        public TaskPriority Priority { get; set; } = TaskPriority.Medium;
 
         /// <summary>
         /// Current status of the task.
         /// </summary>
-        public TaskStatus Status { get; set; } = TaskStatus.Pending;
+        public Status Status { get; set; } = Status.Pending;
 
         /// <summary>
         /// Identifier of the user who owns this task.

@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the current status of a task.
     /// </summary>
-    public enum TaskStatus
+    public enum Status
     {
         /// <summary>Task is pending</summary>
         Pending = 1,
