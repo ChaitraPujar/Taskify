@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Solution Items/">
+    <File Path="../../../Downloads/Taskify-API.postman_collection.json" />
     <File Path="README.md" />
   </Folder>
   <Project Path="Taskify.API/Taskify.API.csproj" />
