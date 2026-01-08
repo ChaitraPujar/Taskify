@@ -8,8 +8,8 @@ import { Router } from '@angular/router';
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  //templateUrl: './register.html',
   template: `
+  <div class="page-container">
     <h2>Register</h2>
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <label>Email:</label>
@@ -18,8 +18,9 @@ import { Router } from '@angular/router';
       <input formControlName="password" type="password" required>
       <button type="submit" [disabled]="form.invalid">Register</button>
     </form>
+  </div>
   `,
-  styleUrl: './register.css',
+  styleUrl: './register.css'
 })
 export class Register {
 

@@ -11,6 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularDev", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200") // Angular dev server
+              .AllowAnyHeader()
+              .AllowAnyMethod(); // Allow POST, PUT, DELETE, OPTIONS etc.
+    });
+});
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
 {
@@ -59,6 +70,9 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 
 
 var app = builder.Build();
+
+// Use CORS
+app.UseCors("AllowAngularDev");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

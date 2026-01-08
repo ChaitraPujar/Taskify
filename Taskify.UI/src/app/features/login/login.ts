@@ -9,6 +9,7 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
+  <div class="page-container">
     <h2>Login</h2>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -26,6 +27,7 @@ import { AuthService } from '../../core/services/auth.service';
         Login
       </button>
     </form>
+  </div>
   `,
   styleUrl: './login.css',
 })

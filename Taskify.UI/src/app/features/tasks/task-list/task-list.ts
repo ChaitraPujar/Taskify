@@ -3,12 +3,14 @@ import { TaskService } from '../task.service';
 import { Task } from '../../../models/task.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { finalize, catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
+  <div class="task-page">
     <h2>My Tasks</h2>
 
     <!-- Add Task Form -->
@@ -23,18 +25,23 @@ import { FormsModule } from '@angular/forms';
     </form>
 
     <!-- Filter -->
-    <div style="margin-bottom: 10px;">
-      <label>Status:</label>
-      <select [(ngModel)]="filterStatus" (change)="applyFilters()">
-        <option value="">All</option>
-        <option *ngFor="let s of statuses">{{ s }}</option>
-      </select>
-      <label>Priority:</label>
-      <select [(ngModel)]="filterPriority" (change)="applyFilters()">
-        <option value="">All</option>
-        <option *ngFor="let p of priorities">{{ p }}</option>
-      </select>
-    </div>
+    <div class="filters">
+      <div>
+    <label>Status</label>
+    <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+      <option value="">All</option>
+      <option *ngFor="let s of statuses">{{ s }}</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Priority</label>
+    <select [(ngModel)]="filterPriority" (change)="applyFilters()">
+      <option value="">All</option>
+      <option *ngFor="let p of priorities">{{ p }}</option>
+    </select>
+  </div>
+</div>
 
     <!-- Task Table -->
     <table border="1" cellpadding="5" cellspacing="0">
@@ -50,25 +57,94 @@ import { FormsModule } from '@angular/forms';
       </thead>
       <tbody>
         <tr *ngFor="let task of filteredTasks">
-          <td>{{ task.title }}</td>
+          <td [class.completed]="task.status === 'Completed'"> {{ task.title }} </td>
           <td>{{ task.description }}</td>
           <td>{{ task.dueDate | date }}</td>
           <td>{{ task.priority }}</td>
           <td>{{ task.status }}</td>
-          <td>
-            <button (click)="editTask(task)">Edit</button>
+          <td class="actions">
+            <button (click)="editTask(task)">Toggle</button>
             <button (click)="deleteTask(task.id!)">Delete</button>
           </td>
         </tr>
       </tbody>
     </table>
+  </div>
   `,
   styles: [`
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 5px; text-align: left; }
-    input, select, button { margin-right: 5px; }
-    button { cursor: pointer; }
-  `],
+  .task-page {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  h2 {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  /* Form layout */
+  form {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr auto;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: stretch;
+  }
+
+  form input,
+  form select {
+    padding: 8px;
+  }
+
+  form button {
+    height: 38px;
+    padding: 0px 10px;
+    width: auto;
+    white-space: nowrap;
+  }
+
+  /* Filters */
+  .filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    background-color: #f0f0f0;
+    text-align: left;
+  }
+
+  th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  tr:hover {
+    background-color: #fafafa;
+  }
+
+  .actions button {
+    margin-right: 6px;
+    width: auto;
+    padding: 6px 10px;
+  }
+
+  .completed {
+    text-decoration: line-through;
+    color: gray;
+  }
+`],
 })
 export class TaskList implements OnInit {
 
@@ -84,22 +160,64 @@ export class TaskList implements OnInit {
   filterStatus = '';
   filterPriority = '';
 
+  isLoading = false;
+  errorMessage = '';
+
   ngOnInit() {
     this.loadTasks();
   }
 
   loadTasks() {
-    this.taskService.getTasks().subscribe(data => {
-      this.tasks = data;
-      this.applyFilters();
-    });
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.taskService.getTasks()
+      .pipe(
+        catchError(() => {
+          this.errorMessage = 'Failed to load tasks.';
+          return of([]); // fallback empty list
+        }),
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe(tasks => {
+        this.tasks = tasks;
+        this.applyFilters();
+      });
   }
 
   addTask() {
-    this.taskService.createTask(this.newTask).subscribe(() => {
-      this.newTask = { title: '', description: '', dueDate: '', priority: 'Medium', status: 'Pending' };
-      this.loadTasks();
-    });
+    if (!this.newTask.title || !this.newTask.dueDate) {
+      this.errorMessage = 'Title and Due Date are required.';
+      return;
+    }
+
+    this.errorMessage = '';
+    this.isLoading = true;
+
+    this.taskService.createTask(this.newTask)
+      .pipe(
+        catchError(() => {
+          this.errorMessage = 'Failed to create task.';
+          return of(null);
+        }),
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe(result => {
+        if (!result) return;
+
+        this.newTask = {
+          title: '',
+          description: '',
+          dueDate: '',
+          priority: 'Medium',
+          status: 'Pending'
+        };
+        this.loadTasks();
+      });
   }
 
   editTask(task: Task) {
@@ -115,7 +233,7 @@ export class TaskList implements OnInit {
     });
   }
 
-   applyFilters() {
+  applyFilters() {
     this.filteredTasks = this.tasks.filter(t =>
       (this.filterStatus ? t.status === this.filterStatus : true) &&
       (this.filterPriority ? t.priority === this.filterPriority : true)
