@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { Router, RouterModule } from '@angular/router';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-register',
@@ -23,7 +24,7 @@ import { Router, RouterModule } from '@angular/router';
       </div>
       <button type="submit" [disabled]="form.invalid">Register</button>
     </form>
-    
+
     <div class="switch-auth">
       Already have an account? 
       <a [routerLink]="['/login']">Login here</a>
@@ -39,7 +40,8 @@ export class Register {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -52,11 +54,13 @@ export class Register {
       const { email, password } = this.form.value;
       this.authService.register(email, password).subscribe({
         next: () => {
-          alert('Registration successful. Please login.');
+          this.notificationService.show('Registration successful. Please login.', 'success');
           this.router.navigate(['/login']);
         },
         error: err => {
-          alert('Registration failed: ' + err.error?.message || err.message);
+          //Remove this later
+          console.log(err.error?.message || err.message);
+          this.notificationService.show('Registration failed', 'error');
         }
       });
     }

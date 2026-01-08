@@ -1,16 +1,18 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { Notification } from './features/notification/notification';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, Notification],
   template: `
     <header class="app-header">
       <h1>Taskify</h1>
     </header>
 
     <main>
+      <app-notification></app-notification>
       <router-outlet></router-outlet>
     </main>
   `,

@@ -4,6 +4,7 @@ import { Task } from '../../../models/task.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize, catchError, of } from 'rxjs';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-task-list',
@@ -15,6 +16,7 @@ import { finalize, catchError, of } from 'rxjs';
 export class TaskList implements OnInit {
 
   private taskService = inject(TaskService);
+  private notificationService = inject(NotificationService);
 
   tasks: Task[] = [];
   filteredTasks: Task[] = [];
@@ -55,17 +57,22 @@ export class TaskList implements OnInit {
 
   addTask() {
     if (!this.newTask.title || !this.newTask.dueDate) {
-      this.errorMessage = 'Title and Due Date are required.';
+      this.notificationService.show(
+        'Title and Due Date are required.',
+        'error'
+      );
       return;
     }
 
-    this.errorMessage = '';
     this.isLoading = true;
 
     this.taskService.createTask(this.newTask)
       .pipe(
         catchError(() => {
-          this.errorMessage = 'Failed to create task.';
+          this.notificationService.show(
+            'Failed to create task.',
+            'error'
+          );
           return of(null);
         }),
         finalize(() => {
@@ -75,6 +82,12 @@ export class TaskList implements OnInit {
       .subscribe(result => {
         if (!result) return;
 
+        this.notificationService.show(
+          'Task added successfully.',
+          'success'
+        );
+
+        // Reset form
         this.newTask = {
           title: '',
           description: '',
@@ -88,15 +101,49 @@ export class TaskList implements OnInit {
 
   editTask(task: Task) {
     const updatedStatus = task.status === 'Pending' ? 'Completed' : 'Pending';
-    this.taskService.updateTask({ ...task, status: updatedStatus }).subscribe(() => {
-      this.loadTasks();
-    });
+    this.taskService.updateTask({ ...task, status: updatedStatus })
+      .pipe(
+        catchError(() => {
+          this.notificationService.show(
+            'Failed to update task.',
+            'error'
+          );
+          return of(null);
+        })
+      )
+      .subscribe(result => {
+        if (!result) return;
+
+        this.notificationService.show(
+          'Task updated successfully.',
+          'success'
+        );
+
+        this.loadTasks();
+      });
   }
 
   deleteTask(id: string) {
-    this.taskService.deleteTask(id).subscribe(() => {
-      this.loadTasks();
-    });
+    this.taskService.deleteTask(id)
+      .pipe(
+        catchError(() => {
+          this.notificationService.show(
+            'Failed to delete task.',
+            'error'
+          );
+          return of(null);
+        })
+      )
+      .subscribe(result => {
+        if (!result) return;
+
+        this.notificationService.show(
+          'Task deleted successfully.',
+          'success'
+        );
+
+        this.loadTasks();
+      });
   }
 
   applyFilters() {

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -44,7 +45,8 @@ export class Login {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService : NotificationService
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -61,11 +63,11 @@ export class Login {
 
     this.authService.login(email, password).subscribe({
       next: () => {
-        alert('Login successful');
+        this.notificationService.show('Login successful', 'success');
         this.router.navigate(['/tasks']);
       },
       error: err => {
-        alert(err?.error?.message ?? 'Login failed');
+        this.notificationService.show('Invalid credentials', 'error');
       }
     });
   }
