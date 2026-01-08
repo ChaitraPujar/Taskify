@@ -1,0 +1,73 @@
+.task-page {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Form layout */
+form {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr auto;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: stretch;
+}
+
+form input,
+form select {
+    padding: 8px;
+}
+
+form button {
+    height: 38px;
+    padding: 0px 10px;
+    width: auto;
+    white-space: nowrap;
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background-color: #f0f0f0;
+    text-align: left;
+}
+
+th,
+td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+    background-color: #fafafa;
+}
+
+.actions button {
+    margin-right: 6px;
+    width: auto;
+    padding: 6px 10px;
+}
+
+.completed {
+    text-decoration: line-through;
+    color: gray;
+}

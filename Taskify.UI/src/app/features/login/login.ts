@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   template: `
   <div class="page-container">
     <h2>Login</h2>
@@ -27,6 +27,12 @@ import { AuthService } from '../../core/services/auth.service';
         Login
       </button>
     </form>
+
+    <div class="switch-auth">
+      Don't have an account? 
+      <a [routerLink]="['/register']">Register here</a>
+    </div>
+
   </div>
   `,
   styleUrl: './login.css',
@@ -46,7 +52,7 @@ export class Login {
     });
   }
 
-   onSubmit(): void {
+  onSubmit(): void {
     if (!this.form.valid) {
       return;
     }

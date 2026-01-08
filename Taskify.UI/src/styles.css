@@ -65,3 +65,18 @@ button:disabled {
   margin-top: 8px;
   text-align: center;
 }
+
+.switch-auth {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.switch-auth a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+.switch-auth a:hover {
+  text-decoration: underline;
+}

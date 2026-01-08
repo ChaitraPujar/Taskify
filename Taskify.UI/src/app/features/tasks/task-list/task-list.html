@@ -1,1 +1,76 @@
-<p>task-list works!</p>
+<div class="task-page">
+    <h2>My Tasks</h2>
+
+    <!-- Add Task Form -->
+    <form (ngSubmit)="addTask()" style="margin-bottom: 20px;">
+        <input [(ngModel)]="newTask.title" name="title" placeholder="Title" required />
+        <input [(ngModel)]="newTask.description" name="description" placeholder="Description" />
+        <input [(ngModel)]="newTask.dueDate" name="dueDate" type="date" required />
+        <select [(ngModel)]="newTask.priority" name="priority">
+            <option *ngFor="let p of priorities">{{ p }}</option>
+        </select>
+        <button type="submit">Add Task</button>
+    </form>
+
+    <!-- Filter -->
+    <div class="filters">
+        <div>
+            <label>Status</label>
+            <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+                <option value="">All</option>
+                <option *ngFor="let s of statuses">{{ s }}</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Priority</label>
+            <select [(ngModel)]="filterPriority" (change)="applyFilters()">
+                <option value="">All</option>
+                <option *ngFor="let p of priorities">{{ p }}</option>
+            </select>
+        </div>
+    </div>
+    @if (isLoading) {
+    <div class="loader">
+        Loading tasks...
+    </div>
+    } @else if (errorMessage) {
+    <div class="error">
+        {{ errorMessage }}
+    </div>
+    } @else if (filteredTasks.length === 0) {
+    <div>
+        No tasks yet. Add your first task above.
+    </div>
+    } @else {
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Due Date</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (task of filteredTasks; track task.id) {
+            <tr>
+                <td [class.completed]="task.status === 'Completed'">
+                    {{ task.title }}
+                </td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.dueDate | date }}</td>
+                <td>{{ task.priority }}</td>
+                <td>{{ task.status }}</td>
+                <td class="actions">
+                    <button (click)="editTask(task)">Edit</button>
+                    <button (click)="deleteTask(task.id!)">Delete</button>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    }
+</div>
