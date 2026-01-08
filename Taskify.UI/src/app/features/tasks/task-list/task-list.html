@@ -60,14 +60,37 @@
                 <td [class.completed]="task.status === 'Completed'">
                     {{ task.title }}
                 </td>
-                <td>{{ task.description }}</td>
+                <td>
+                    @if (editingTaskId === task.id) {
+                    <textarea [(ngModel)]="editModel.description" rows="2" class="edit-input"></textarea>
+                    } @else {
+                    {{ task.description }}
+                    }
+                </td>
                 <td>{{ task.dueDate | date }}</td>
                 <td>{{ task.priority }}</td>
-                <td>{{ task.status }}</td>
-                <td class="actions">
-                    <button (click)="editTask(task)">Edit</button>
-                    <button (click)="deleteTask(task.id!)">Delete</button>
+                <td>
+                    @if (editingTaskId === task.id) {
+                    <select [(ngModel)]="editModel.status" class="edit-input">
+                        <option *ngFor="let s of statuses" [value]="s">
+                            {{ s }}
+                        </option>
+                    </select>
+                    } @else {
+                    {{ task.status }}
+                    }
                 </td>
+
+                <td>
+                    @if (editingTaskId === task.id) {
+                    <button (click)="editTask(task)" [disabled]="isUpdating">Update</button>
+                    <button (click)="cancelEdit()" [disabled]="isUpdating">Cancel</button>
+                    } @else {
+                    <button (click)="startEdit(task)">Edit</button>
+                    <button (click)="deleteTask(task.id!)">Delete</button>
+                    }
+                </td>
+
             </tr>
             }
         </tbody>

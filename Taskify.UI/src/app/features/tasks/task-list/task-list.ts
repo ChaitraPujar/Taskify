@@ -28,8 +28,15 @@ export class TaskList implements OnInit {
   filterStatus = '';
   filterPriority = '';
 
+  isUpdating = false;
   isLoading = false;
   errorMessage = '';
+
+  editingTaskId: string | null = null;
+  editModel: {
+    description?: string;
+    status?: 'Pending' | 'Completed';
+  } = {};
 
   ngOnInit() {
     this.loadTasks();
@@ -100,8 +107,24 @@ export class TaskList implements OnInit {
   }
 
   editTask(task: Task) {
-    const updatedStatus = task.status === 'Pending' ? 'Completed' : 'Pending';
-    this.taskService.updateTask({ ...task, status: updatedStatus })
+
+    if (!task.id) {
+      this.notificationService.show(
+        'Task ID missing. Cannot update.',
+        'error'
+      );
+      return;
+    }
+
+    this.isUpdating = true;
+
+    const updatedTask: Task = {
+      ...task,
+      description: this.editModel.description,
+      status: this.editModel.status!
+    };
+
+    this.taskService.updateTask(updatedTask)
       .pipe(
         catchError(() => {
           this.notificationService.show(
@@ -109,6 +132,9 @@ export class TaskList implements OnInit {
             'error'
           );
           return of(null);
+        }),
+        finalize(() => {
+          this.isUpdating = false;
         })
       )
       .subscribe(result => {
@@ -119,11 +145,15 @@ export class TaskList implements OnInit {
           'success'
         );
 
+        this.editingTaskId = null;
+        this.editModel = {};
         this.loadTasks();
       });
   }
 
   deleteTask(id: string) {
+    this.isLoading = true;
+
     this.taskService.deleteTask(id)
       .pipe(
         catchError(() => {
@@ -132,11 +162,12 @@ export class TaskList implements OnInit {
             'error'
           );
           return of(null);
+        }),
+        finalize(() => {
+          this.isLoading = false;
         })
       )
-      .subscribe(result => {
-        if (!result) return;
-
+      .subscribe(() => {
         this.notificationService.show(
           'Task deleted successfully.',
           'success'
@@ -152,4 +183,21 @@ export class TaskList implements OnInit {
       (this.filterPriority ? t.priority === this.filterPriority : true)
     );
   }
+
+  // grid inline editing methods
+  startEdit(task: Task) {
+    if (!task.id) return;
+
+    this.editingTaskId = task.id;
+    this.editModel = {
+      description: task.description,
+      status: task.status
+    };
+  }
+
+  cancelEdit() {
+    this.editingTaskId = null;
+    this.editModel = {};
+  }
+
 }

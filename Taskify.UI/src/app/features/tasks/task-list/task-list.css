@@ -71,3 +71,9 @@ tr:hover {
     text-decoration: line-through;
     color: gray;
 }
+
+.edit-input {
+  width: 100%;
+  padding: 6px;
+  font-size: 0.9rem;
+}

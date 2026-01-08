@@ -12,6 +12,7 @@ export class TokenService {
   }
 
   getToken(): string | null {
+    if (typeof window === 'undefined') return null;
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
